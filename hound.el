@@ -3,7 +3,7 @@
 ;; Author: Ryan Young
 ;; Version: 1.0.0
 ;; Created: February 13, 2013
-;; Package-Requires: ((web "1.0"))
+;; Package-Requires: ((web "1.0") (cl-lib "0.5"))
 
 ;; Most of this is taken straight from ag.el, and then heavily modified to query a
 ;; running hound server instead of running ag to provide the search results.
@@ -35,6 +35,7 @@
 
 ;;; Code:
 (require 'web)
+(require 'cl-lib)
 (require 'compile)
 
 ;;; ----------------------------------------------------------------------------
@@ -151,13 +152,22 @@ so that we can locate and open the file."
 ;;; ----------------------------------------------------------------------------
 ;;; ----- Compilation mode setup
 
+;; much of this taken from ag.el
+(defmacro hound/with-patch-function (fun-name fun-args fun-body &rest body)
+  "Temporarily override the definition of FUN-NAME whilst BODY is executed.
+Assumes FUNCTION is already defined (see http://emacs.stackexchange.com/a/3452/304)."
+  `(cl-letf (((symbol-function ,fun-name)
+              (lambda ,fun-args ,fun-body)))
+     ,@body))
+
 (defun hound/next-error-function (n &optional reset)
   "Open the search result at point in the current window or a different window, according to `hound-reuse-window'."
   (if hound-reuse-window
       ;; prevent changing the window
-      (flet ((pop-to-buffer (buffer &rest args)
-                            (switch-to-buffer buffer)))
-        (compilation-next-error-function n reset))
+      (hound/with-patch-function
+       'pop-to-buffer (buffer &rest args) (switch-to-buffer buffer)
+       (compilation-next-error-function n reset))
+
     ;; just navigate to the results as normal
     (compilation-next-error-function n reset)))
 
