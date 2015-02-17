@@ -5,6 +5,7 @@
 ;; Created: February 13, 2013
 ;; Package-Requires: ((web "1.0") (cl-lib "0.5"))
 
+;;; Commentary:
 ;; Most of this is taken straight from ag.el, and then heavily modified to query a
 ;; running hound server instead of running ag to provide the search results.
 ;;
