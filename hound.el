@@ -44,11 +44,11 @@
   "Non-nil means we open search results in the same window, hiding the results buffer."
   :type 'boolean
   :group 'hound)
-(defcustom hound-host "your-hound-server.com"
+(defcustom hound-host "localhost"
   "This is the hostname specifying where the hound server is running"
   :type 'string
   :group 'hound)
-(defcustom hound-api-port "8080"
+(defcustom hound-api-port "6080"
   "This is the port number of the hound service"
   :type 'string
   :group 'hound)
