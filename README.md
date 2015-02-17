@@ -1,4 +1,4 @@
-# emacs-hound
+# hound.el
 This is an emacs package to display [Hound](https://github.com/etsy/Hound) search results and quickly open the files.  If you've used [ag.el](https://github.com/Wilfred/ag.el) then its usage will be familiar to you.
 
 
