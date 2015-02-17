@@ -8,10 +8,9 @@ This is an emacs package to display [Hound](https://github.com/etsy/Hound) searc
 Invoke hound at any time with ```M-x hound```.  Hound will try and be smart and pre-populate your query with whatever symbol is under the point.  It will then query the Hound server running at ```hound-host``` on port ```hound-api-point``` (customize these two variables to point to your Hound server).  Results are dumped into a compilation-mode buffer with a default directory of ```hound-root-directory``` (again, customize this to suit your project).  From here you can jump straight to the file and line number of the search results.
 
 # Installation
-In the future, I hope to put the package on [MELPA](http://melpa.milkbox.net).  Until then, you can install it manually with
+The package is hosted on [MELPA](http://melpa.milkbox.net), so you can install it with
 ```
-(add-to-list 'load-path "/path/to/hound.el")
-(require 'hound)
+M-x package-install hound
 ```
 
 # Configuration
