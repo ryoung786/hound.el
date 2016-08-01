@@ -1,9 +1,9 @@
 ;;; hound.el --- Display hound search results in a compilation window
 
 ;; Author: Ryan Young
-;; Version: 1.0.0
+;; Version: 1.1.0
 ;; Created: February 13, 2013
-;; Package-Requires: ((web "1.0") (cl-lib "0.5"))
+;; Package-Requires: ((request "0.2.0") (cl-lib "0.5"))
 
 ;;; Commentary:
 ;; Most of this is taken straight from ag.el, and then heavily modified to query a
@@ -35,9 +35,10 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Code:
-(require 'web)
+(require 'request)
 (require 'cl-lib)
 (require 'compile)
+(require 'json)
 
 ;;; ----------------------------------------------------------------------------
 ;;; ----- Customizable vars
@@ -50,7 +51,7 @@
   "This is the hostname specifying where the hound server is running"
   :type 'string
   :group 'hound)
-(defcustom hound-api-port "6080"
+(defcustom hound-api-port "443"
   "This is the port number of the hound service"
   :type 'string
   :group 'hound)
@@ -80,26 +81,23 @@ so that we can locate and open the file."
 (defun hound (query)
   (interactive (list (read-from-minibuffer "Search string: " (hound/dwim-at-point))))
   (setq hound/most-recent-query query)
-  (web-json-post 'hound/handle-http-response :url (hound/get-search-url query 1)))
+  (request
+   (hound/get-search-url query t)
+   :parser 'json-read
+   :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                         (message "Got error: %S" error-thrown)))
+   :success (cl-function
+             (lambda (&key data &allow-other-keys) (hound/handle-http-response data)))))
 
 
 ;;; ----------------------------------------------------------------------------
 ;;; ----- HTTP request to grab search results
 
-(defun hound/get-query-hash (query)
-  (let ((hash (make-hash-table :test 'equal)))
-    (puthash 'stats "fosho" hash)
-    (puthash 'rng ":" hash) ;; this gets all of the results - consider making this 20 or so as a default
-    (puthash 'files nil hash)
-    (puthash 'i "nope" hash)
-    (puthash 'q query hash)
-    hash))
-
 (defun hound/get-search-url (query api-p)
-  (let ((base (if api-p
-                  (concat "http://" hound-host ":" hound-api-port "/api/v1/search?")
-                (concat "http://" hound-host "?"))))
-    (concat base (web-to-query-string (hound/get-query-hash query)) "&repos=*")))
+  (let* ((api-url (concat "https://" hound-host ":" hound-api-port "/api/v1/search?"))
+         (web-url (concat "https://" hound-host "?"))
+         (url (if api-p api-url web-url)))
+    (concat url "&repos=*&q=" (url-encode-url query) )))
 
 (defun hound/dwim-at-point ()
   (cond ((use-region-p)
@@ -126,9 +124,7 @@ so that we can locate and open the file."
          (newline)))
      line-matches)))
 
-(defun hound/handle-http-response (response conn headers)
-  ;; something with map to transform each match into a string and then dump that string into the buffer
-  ;; then set that buffer mode to hound-mode
+(defun hound/handle-http-response (response)
   (kill-buffer (get-buffer-create "*hound search*"))
   (with-current-buffer (get-buffer-create "*hound search*")
     (insert (format "Hound Results for %s:\n%s\n\n" hound/most-recent-query (hound/get-search-url hound/most-recent-query nil)))
