@@ -39,6 +39,7 @@
 (require 'cl-lib)
 (require 'compile)
 (require 'json)
+(require 'url-util)
 
 ;;; ----------------------------------------------------------------------------
 ;;; ----- Customizable vars
@@ -97,7 +98,7 @@ so that we can locate and open the file."
   (let* ((api-url (concat hound-host ":" hound-api-port "/api/v1/search?"))
          (web-url (concat hound-host "?"))
          (url (if api-p api-url web-url)))
-    (concat url "&repos=*&q=" (url-encode-url query) )))
+    (concat url "&repos=*&q=" (url-hexify-string query) )))
 
 (defun hound/dwim-at-point ()
   (cond ((use-region-p)
