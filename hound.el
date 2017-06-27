@@ -1,7 +1,7 @@
 ;;; hound.el --- Display hound search results in a compilation window
 
 ;; Author: Ryan Young
-;; Version: 1.2.0
+;; Version: 1.2.1
 ;; Created: February 13, 2013
 ;; Package-Requires: ((request "0.2.0") (cl-lib "0.5"))
 
