@@ -51,10 +51,13 @@
 (defcustom hound-host "http://localhost"
   "This is the hostname specifying where the hound server is running"
   :type 'string
+  :safe 'string
   :group 'hound)
+
 (defcustom hound-api-port "6080"
   "This is the port number of the hound service"
   :type 'string
+  :safe 'string
   :group 'hound)
 (defcustom hound-repo-substitution '()
   "list of (repo_name local_directory_name), in the event that your local checkout of the
@@ -70,6 +73,10 @@ so that we can locate and open the file."
   :group 'hound)
 
 (defvar hound/most-recent-query "")
+
+(put 'hound-host 'safe-local-variable #'stringp)
+(put 'hound-api-port 'safe-local-variable #'stringp)
+
 ;;; ----------------------------------------------------------------------------
 ;;; ----- Public functions
 
